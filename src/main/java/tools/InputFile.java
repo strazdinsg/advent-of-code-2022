@@ -69,7 +69,28 @@ public class InputFile {
     return value;
   }
 
+  /**
+   * Check whether end of file has been reached.
+   *
+   * @return True when end of file has been reached, false otherwise
+   */
   public boolean isEndOfFile() {
     return endOfFileReached;
+  }
+
+  /**
+   * Read all lines from the input file, store them in a StringGrid structure.
+   *
+   * @return The file content as a StringGrid.
+   */
+  public StringGrid readAllIntoGridBuffer() {
+    StringGrid buffer = new StringGrid();
+    while (!isEndOfFile()) {
+      String line = readLineAndDetectEnd();
+      if (line != null) {
+        buffer.appendRow(line);
+      }
+    }
+    return buffer;
   }
 }
