@@ -31,18 +31,16 @@ public class Solver {
       return;
     }
 
-    long maxCalories = 0;
+    TopValues topCalories = new TopValues(3);
     Long calories = getCaloriesForNextElf();
 
     while (calories != null) {
-      if (calories > maxCalories) {
-        maxCalories = calories;
-      }
+      topCalories.addIfHighest(calories);
       calories = getCaloriesForNextElf();
     }
 
-    Logger.info("The elves will start eating from the backpack uf the unlucky one who has "
-        + maxCalories + " calories in his backpack");
+    Logger.info("Top calories: " + topCalories.toString());
+    Logger.info("Together that is " + topCalories.sum() + " calories");
   }
 
   /**
