@@ -10,17 +10,19 @@ import tools.StringGrid;
  * See description here: https://adventofcode.com/2022/day/8
  * Count the number of trees visible from at least one side. A tree is visible iff all trees to the
  * right, left, up or down are shorter than it.
- * The main idea: go through each row from left to right. At each position remember the tallest tree
- * to the left.Mark the current tree as visible if it is tallest so far. Then repeat the same
- * procedure for each row from right to left. Then for each column top-down and bottom up. Then
- * count the number of trees marked as tallest.
+ * The main idea: iterate over all trees, look in all four directions. See how far the sight goes in each direction.
+ * Mark the tree as visible if the sight reaches the boundary in at least one direction
  */
 public class Solver {
 
   private IntegerGrid treeHeights;
   private int rowCount;
   private int columnCount;
-  private boolean[][] isVisible;
+  private int visibleTreeCount;
+
+  private boolean[][] isVisibleFromOutside;
+
+  private int bestVisibility;
 
   /**
    * Run the solver - solve the puzzle.
@@ -43,98 +45,80 @@ public class Solver {
     treeHeights = IntegerGrid.createFrom(treeHeightsAsStrings);
     rowCount = treeHeights.getRowCount();
     columnCount = treeHeights.getColumnCount();
-    initializeEmptyVisibleTreeGrid();
+    initializeEmptyVisibilityData();
 
-    markVisibleTrees(LookAt.ROWS, Direction.LEFT_TO_RIGHT);
-    markVisibleTrees(LookAt.ROWS, Direction.RIGHT_TO_LEFT);
-    markVisibleTrees(LookAt.COLUMNS, Direction.TOP_DOWN);
-    markVisibleTrees(LookAt.COLUMNS, Direction.BOTTOM_UP);
+    // A brute-force search. Not an efficient algorithm, but should work just fine for the small data set
+    for (int row = 0; row < rowCount; ++row) {
+      for (int column = 0; column < columnCount; ++column) {
+        calculateVisibility(row, column);
+      }
+    }
 
     Logger.info("Visible tree count: " + getVisibleTreeCount());
+    Logger.info("Highest scenic score: " + bestVisibility);
   }
 
   private int getVisibleTreeCount() {
-    int visibleTreeCount = 0;
-    for (int row = 0; row < rowCount; ++row) {
-      for (int column = 0; column < columnCount; ++column) {
-        if (isVisible[row][column]) {
-          visibleTreeCount++;
-        }
-      }
-    }
     return visibleTreeCount;
   }
 
-  private void initializeEmptyVisibleTreeGrid() {
-    isVisible = new boolean[rowCount][columnCount];
+  private void initializeEmptyVisibilityData() {
+    visibleTreeCount = 0;
+    bestVisibility = -1;
+    isVisibleFromOutside = new boolean[rowCount][columnCount];
   }
 
-  private void markVisibleTrees(LookAt lookAt, Direction direction) {
-    if (lookAt == LookAt.ROWS) {
-      markVisibleTreesByRows(direction);
-    } else {
-      markVisibleTreesByColumns(direction);
+  private void calculateVisibility(int row, int column) {
+    int visibilityUp = findViewingDistance(row, column, Direction.UP);
+    int visibilityDown = findViewingDistance(row, column, Direction.DOWN);
+    int visibilityLeft = findViewingDistance(row, column, Direction.LEFT);
+    int visibilityRight = findViewingDistance(row, column, Direction.RIGHT);
+    int visibility = visibilityUp * visibilityDown * visibilityRight * visibilityLeft;
+    if (visibility > bestVisibility) {
+      bestVisibility = visibility;
     }
   }
 
-  private void markVisibleTreesByRows(Direction direction) {
-    int fromColumn;
-    int toColumn;
-    int columnStep;
-    if (direction == Direction.LEFT_TO_RIGHT) {
-      fromColumn = 0;
-      toColumn = columnCount;
-      columnStep = 1;
-    } else {
-      fromColumn = columnCount - 1;
-      toColumn = -1;
-      columnStep = -1;
-    }
+  /**
+   * Look as far as the sight goes from a specific position in the forest, find the viewing distance.
+   *
+   * @param row       The row-index of the tree to look from
+   * @param column    The column-index of the tree to look from
+   * @param direction The direction to look in
+   * @return The viewing distance from the given tree in the given direction
+   */
+  private int findViewingDistance(int row, int column, Direction direction) {
+    int viewDistance = 0;
+    boolean foundTallerTree = false;
+    int startingTreeHeight = getTreeHeight(row, column);
 
-    for (int row = 0; row < rowCount; ++row) {
-      int maxHeightInRow = -1;
-      for (int column = fromColumn; column != toColumn; column += columnStep) {
-        int height = getTreeHeight(row, column);
-        if (height > maxHeightInRow) {
-          markAsVisible(row, column);
-          maxHeightInRow = height;
-        }
+    Sight sight = Sight.fromDirection(direction, row, column, rowCount, columnCount);
+    sight.advanceOneStep();
+
+    while (!foundTallerTree && !sight.isBoundaryReached()) {
+      ++viewDistance;
+      int heightOfTreeInSight = treeHeights.getValueAt(sight.getCurrentRow(), sight.getCurrentColumn());
+      if (heightOfTreeInSight >= startingTreeHeight) {
+        foundTallerTree = true;
       }
+      sight.advanceOneStep();
     }
+
+    if (!foundTallerTree) {
+      markAsVisibleFromOutside(row, column);
+    }
+
+    return viewDistance;
   }
 
-  private void markVisibleTreesByColumns(Direction direction) {
-    int fromRow;
-    int toRow;
-    int rowStep;
-    if (direction == Direction.TOP_DOWN) {
-      fromRow = 0;
-      toRow = rowCount;
-      rowStep = 1;
-    } else {
-      fromRow = rowCount - 1;
-      toRow = -1;
-      rowStep = -1;
+  private void markAsVisibleFromOutside(int row, int column) {
+    if (!isVisibleFromOutside[row][column]) {
+      isVisibleFromOutside[row][column] = true;
+      visibleTreeCount++;
     }
-
-    for (int column = 0; column < columnCount; ++column) {
-      int maxHeightInColumn = -1;
-      for (int row = fromRow; row != toRow; row += rowStep) {
-        int height = getTreeHeight(row, column);
-        if (height > maxHeightInColumn) {
-          markAsVisible(row, column);
-          maxHeightInColumn = height;
-        }
-      }
-    }
-  }
-
-  private void markAsVisible(int row, int column) {
-    isVisible[row][column] = true;
   }
 
   private int getTreeHeight(int row, int column) {
     return treeHeights.getValueAt(row, column);
   }
-
 }
