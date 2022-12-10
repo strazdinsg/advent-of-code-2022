@@ -1,6 +1,4 @@
-package problem.tools;
-
-import tools.StringGrid;
+package tools;
 
 /**
  * Stores a grid of integers.

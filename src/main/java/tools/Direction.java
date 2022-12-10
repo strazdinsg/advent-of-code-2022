@@ -1,4 +1,4 @@
-package problem.day08;
+package tools;
 
 /**
  * The direction in which to look at the trees.

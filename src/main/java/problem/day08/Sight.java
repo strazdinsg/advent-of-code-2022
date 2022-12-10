@@ -1,5 +1,7 @@
 package problem.day08;
 
+import tools.Direction;
+
 /**
  * Data for looking in a specific direction.
  */
@@ -34,7 +36,8 @@ public class Sight {
    * @return A sight object with given configuration.
    * @throws IllegalStateException When illegal direction is provided
    */
-  public static Sight fromDirection(Direction direction, int row, int column, int rowCount, int columnCount) {
+  public static Sight fromDirection(Direction direction, int row, int column,
+                                    int rowCount, int columnCount) {
     switch (direction) {
       case UP:
         return new Sight(row, column, -1, 0, -1, -1);
@@ -67,7 +70,7 @@ public class Sight {
   }
 
   /**
-   * Get the current row where the "sight is focused"
+   * Get the current row where the "sight is focused".
    *
    * @return The current row of focus
    */
@@ -76,7 +79,7 @@ public class Sight {
   }
 
   /**
-   * Get the current column where the "sight is focused"
+   * Get the current column where the "sight is focused".
    *
    * @return The current column of focus
    */

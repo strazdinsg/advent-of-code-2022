@@ -46,6 +46,15 @@ public class InputFile {
     return value != null ? convertToInt(value) : IntegerOrEmpty.empty;
   }
 
+  /**
+   * Read one line from the input file.
+   *
+   * @return The line as a string, null when end is reached.
+   */
+  public String readLine() {
+    return readLineAndDetectEnd();
+  }
+
   private static IntegerOrEmpty convertToInt(String s) {
     if (s == null || s.equals("")) {
       return IntegerOrEmpty.empty;
@@ -55,6 +64,8 @@ public class InputFile {
 
   /**
    * Read one line of text from the file and detect whether end of file has been reached.
+   *
+   * @return The line or null if end is reached (or an error happens)
    */
   private String readLineAndDetectEnd() {
     String value = null;

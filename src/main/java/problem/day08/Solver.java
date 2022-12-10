@@ -1,7 +1,8 @@
 package problem.day08;
 
-import problem.tools.IntegerGrid;
+import tools.Direction;
 import tools.InputFile;
+import tools.IntegerGrid;
 import tools.Logger;
 import tools.StringGrid;
 
@@ -10,7 +11,8 @@ import tools.StringGrid;
  * See description here: https://adventofcode.com/2022/day/8
  * Count the number of trees visible from at least one side. A tree is visible iff all trees to the
  * right, left, up or down are shorter than it.
- * The main idea: iterate over all trees, look in all four directions. See how far the sight goes in each direction.
+ * The main idea: iterate over all trees, look in all four directions. See how far the sight goes
+ * in each direction.
  * Mark the tree as visible if the sight reaches the boundary in at least one direction
  */
 public class Solver {
@@ -47,7 +49,8 @@ public class Solver {
     columnCount = treeHeights.getColumnCount();
     initializeEmptyVisibilityData();
 
-    // A brute-force search. Not an efficient algorithm, but should work just fine for the small data set
+    // A brute-force search. Not an efficient algorithm, but should work just fine
+    // for the small data set
     for (int row = 0; row < rowCount; ++row) {
       for (int column = 0; column < columnCount; ++column) {
         calculateVisibility(row, column);
@@ -80,7 +83,8 @@ public class Solver {
   }
 
   /**
-   * Look as far as the sight goes from a specific position in the forest, find the viewing distance.
+   * Look as far as the sight goes from a specific position in the forest, find
+   * the viewing distance.
    *
    * @param row       The row-index of the tree to look from
    * @param column    The column-index of the tree to look from
@@ -97,7 +101,8 @@ public class Solver {
 
     while (!foundTallerTree && !sight.isBoundaryReached()) {
       ++viewDistance;
-      int heightOfTreeInSight = treeHeights.getValueAt(sight.getCurrentRow(), sight.getCurrentColumn());
+      int heightOfTreeInSight = treeHeights.getValueAt(sight.getCurrentRow(),
+          sight.getCurrentColumn());
       if (heightOfTreeInSight >= startingTreeHeight) {
         foundTallerTree = true;
       }
