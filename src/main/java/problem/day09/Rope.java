@@ -7,20 +7,25 @@ import tools.Vector;
  * Represents a rope with a head and tail.
  */
 public class Rope {
-  Vector head;
-  Vector tail;
+  Vector[] knots;
+
+  int numberOfKnots;
 
   private final InfiniteRopeField field;
 
   /**
    * Initialize a rope.
    *
-   * @param field The infinite field in which the rope will be moving
+   * @param field         The infinite field in which the rope will be moving
+   * @param numberOfKnots The number of knots to create in the rope
    */
-  public Rope(InfiniteRopeField field) {
+  public Rope(InfiniteRopeField field, int numberOfKnots) {
     this.field = field;
-    head = new Vector(0, 0);
-    tail = new Vector(0, 0);
+    this.numberOfKnots = numberOfKnots;
+    knots = new Vector[numberOfKnots];
+    for (int i = 0; i < numberOfKnots; ++i) {
+      knots[i] = new Vector(0, 0);
+    }
   }
 
   /**
@@ -31,28 +36,37 @@ public class Rope {
   public void move(Movement movement) {
     while (movement != null && movement.isNotFinished()) {
       moveHead(movement.takeOneStep());
-      tailFollowsHead();
+      for (int i = 1; i < numberOfKnots; ++i) {
+        knotFollows(i);
+      }
     }
   }
 
-  private void tailFollowsHead() {
-    Vector distance = head.minus(tail);
-    if (isHeadWayIllegallyFar(distance)) {
-      throw new IllegalStateException("Head too far from the head, this should never happen!");
+  private void knotFollows(int knotNumber) {
+    Vector distance = knots[knotNumber - 1].minus(knots[knotNumber]);
+    if (areKnotsIllegallyFar(distance)) {
+      throw new IllegalStateException("One knot too far from the next, this should never happen!");
     }
 
-    if (isHeadTooFarRight(distance)) {
-      moveTail(1, distance.getY());
+    if (isTwoStepDiagonal(distance)) {
+      Vector halfDiagonal = distance.scaleToOneUnit();
+      moveKnot(knotNumber, halfDiagonal.getX(), halfDiagonal.getY());
+    } else if (isHeadTooFarRight(distance)) {
+      moveKnot(knotNumber, 1, distance.getY());
     } else if (isHeadTooFarLeft(distance)) {
-      moveTail(-1, distance.getY());
+      moveKnot(knotNumber, -1, distance.getY());
     } else if (isHeadTooFarDown(distance)) {
-      moveTail(distance.getX(), 1);
+      moveKnot(knotNumber, distance.getX(), 1);
     } else if (isHeadTooFarUp(distance)) {
-      moveTail(distance.getX(), -1);
+      moveKnot(knotNumber, distance.getX(), -1);
     }
   }
 
-  private boolean isHeadWayIllegallyFar(Vector distance) {
+  private boolean isTwoStepDiagonal(Vector distance) {
+    return Math.abs(distance.getX()) == 2 && Math.abs(distance.getY()) == 2;
+  }
+
+  private boolean areKnotsIllegallyFar(Vector distance) {
     return distance.getAbsoluteX() > 2 || distance.getAbsoluteY() > 2;
   }
 
@@ -73,13 +87,62 @@ public class Rope {
   }
 
   private void moveHead(Vector step) {
-    head = head.plus(step);
-    Logger.info("Head at " + head);
+    knots[0] = knots[0].plus(step);
+    Logger.info("Head at " + knots[0]);
   }
 
-  private void moveTail(int deltaX, int deltaY) {
-    tail = tail.plus(new Vector(deltaX, deltaY));
-    Logger.info("  Tail at " + tail);
-    field.registerTailPosition(tail);
+  private void moveKnot(int knotNumber, int deltaX, int deltaY) {
+    knots[knotNumber] = knots[knotNumber].plus(deltaX, deltaY);
+    Logger.info("  Knot[" + knotNumber + "] at " + knots[knotNumber]);
+    if (isTail(knotNumber)) {
+      field.registerTailPosition(knots[knotNumber]);
+    }
+  }
+
+  private boolean isTail(int knotNumber) {
+    return knotNumber == numberOfKnots - 1;
+  }
+
+  /**
+   * Print the current knot map. Used for debugging.
+   */
+  public void printKnotMap() {
+    KnotDebugMap map = new KnotDebugMap(findKnotPositionBoundaries());
+    for (int i = 0; i < numberOfKnots; ++i) {
+      map.addKnot(i, knots[i]);
+    }
+    // Add the head on top of all others
+    map.addKnot(0, knots[0]);
+    map.print();
+  }
+
+  /**
+   * Find boundaries of the area covering all the knots.
+   *
+   * @return The boundaries covering all knot positions
+   */
+  public Rectangle findKnotPositionBoundaries() {
+    int minX = 10000000;
+    int minY = 10000000;
+    int maxX = -10000000;
+    int maxY = -10000000;
+    for (int i = 0; i < numberOfKnots; ++i) {
+      minX = Math.min(knots[i].getX(), minX);
+      minY = Math.min(knots[i].getY(), minY);
+      maxX = Math.max(knots[i].getX(), maxX);
+      maxY = Math.max(knots[i].getY(), maxY);
+    }
+    return new Rectangle(minX, minY, maxX, maxY);
+  }
+
+  /**
+   * Get the position of a knot.
+   *
+   * @param knotNumber The number of the knot. Numbering starts at zero!
+   * @return The knot position
+   * @throws ArrayIndexOutOfBoundsException if the knotNumber is invalid
+   */
+  public Vector getKnot(int knotNumber) {
+    return knots[knotNumber];
   }
 }

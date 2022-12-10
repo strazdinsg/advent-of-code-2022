@@ -16,7 +16,7 @@ import tools.Logger;
  * Track the motion of the tail of the rope over an infinite field
  */
 public class Solver {
-
+  private static final int NUMBER_OF_KNOTS = 10;
 
   /**
    * Run the solver - solve the puzzle.
@@ -36,7 +36,7 @@ public class Solver {
     }
 
     InfiniteRopeField field = new InfiniteRopeField();
-    Rope rope = new Rope(field);
+    Rope rope = new Rope(field, NUMBER_OF_KNOTS);
 
     while (!inputFile.isEndOfFile()) {
       String command = inputFile.readLine();
@@ -44,6 +44,7 @@ public class Solver {
         Logger.info("> " + command);
         Movement movement = new Movement(command);
         rope.move(movement);
+        rope.printKnotMap();
       }
     }
 
