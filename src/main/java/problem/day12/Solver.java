@@ -2,6 +2,7 @@ package problem.day12;
 
 import tools.InputFile;
 import tools.Logger;
+import tools.Vector;
 
 /**
  * Solution for the problem of Day 12
@@ -31,7 +32,21 @@ public class Solver {
     TopoMap map = new TopoMap();
     map.initializeFrom(inputFile.readAllIntoGridBuffer());
     MazeSolver mazeSolver = new MazeSolver(map);
-    int pathLength = mazeSolver.findShortestPath(map.getStartPosition(), map.getEndPosition());
-    Logger.info("Length of the shortest path: " + pathLength);
+    Logger.info("Length of the shortest path from the starting position: "
+        + mazeSolver.findShortestPath(map.getStartPosition(), map.getEndPosition()));
+
+    int shortestDistance = Integer.MAX_VALUE;
+    for (int row = 0; row < map.getHeight(); ++row) {
+      for (int column = 0; column < map.getWidth(); ++column) {
+        if (map.isGroundLevel(row, column)) {
+          Vector start = new Vector(column, row);
+          int distance = mazeSolver.findShortestPath(start, map.getEndPosition());
+          if (distance != MazeSolver.NOT_REACHED) {
+            shortestDistance = Math.min(distance, shortestDistance);
+          }
+        }
+      }
+    }
+    Logger.info("Shortest distance of all possible hikes: " + shortestDistance);
   }
 }

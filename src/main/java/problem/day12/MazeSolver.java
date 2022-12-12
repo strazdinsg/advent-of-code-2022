@@ -16,7 +16,7 @@ public class MazeSolver {
   private boolean destinationFound;
   private Vector destination;
 
-  private static final int UNVISITED = -2;
+  public static final int NOT_REACHED = -2;
   private final Queue<Vector> cellsToVisit = new LinkedList<>();
 
   /**
@@ -32,7 +32,7 @@ public class MazeSolver {
   private void clearDistances() {
     distances = new int[map.getHeight()][map.getWidth()];
     for (int i = 0; i < map.getHeight(); ++i) {
-      Arrays.fill(distances[i], UNVISITED);
+      Arrays.fill(distances[i], NOT_REACHED);
     }
   }
 
@@ -98,7 +98,7 @@ public class MazeSolver {
   private boolean canVisit(int sourceRow, int sourceColumn, int destRow, int destColumn) {
     return destRow >= 0 && destRow < map.getHeight()
         && destColumn >= 0 && destColumn < map.getWidth()
-        && distances[destRow][destColumn] == UNVISITED
+        && distances[destRow][destColumn] == NOT_REACHED
         && map.canMove(sourceRow, sourceColumn, destRow, destColumn);
   }
 

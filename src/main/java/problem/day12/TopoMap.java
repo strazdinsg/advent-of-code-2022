@@ -74,4 +74,16 @@ public class TopoMap extends ConvertedGrid implements MazeMap {
     int destinationHeight = heights[destRow][destColumn];
     return destinationHeight <= sourceHeight + 1;
   }
+
+  /**
+   * Check if the specified cell is at the ground level.
+   *
+   * @param row    Row of the cell (y-axis position)
+   * @param column Column of the cell (x-axis position)
+   * @return True when the cell is at the ground level, false otherwise
+   * @throws ArrayIndexOutOfBoundsException if the row or column is invalid
+   */
+  public boolean isGroundLevel(int row, int column) {
+    return heights[row][column] == 0;
+  }
 }
