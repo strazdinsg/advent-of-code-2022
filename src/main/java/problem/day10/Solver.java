@@ -29,20 +29,25 @@ public class Solver {
   private void solve() {
     InputFile inputFile = new InputFile("problem10.input");
     if (!inputFile.exists()) {
+      Logger.info("Input file not found");
       return;
     }
 
     initializeInterestingCycleNumbers();
 
     CentralProcessorUnit cpu = new CentralProcessorUnit();
+    CrtScreen screen = new CrtScreen(cpu);
     int signalStrengthSum = 0;
     while (cpu.isNotDone()) {
       if (cpu.isIdle()) {
         cpu.scheduleInstruction(fetchInstructionFromFile(inputFile));
       }
-      cpu.tick();
-      if (isInterestingCycleNumber(cpu.getCycleNumber())) {
-        signalStrengthSum += cpu.getCycleNumber() * cpu.getRegisterValue();
+      if (cpu.isNotDone()) {
+        screen.drawPixel();
+        cpu.tick();
+        if (isInterestingCycleNumber(cpu.getCycleNumber())) {
+          signalStrengthSum += cpu.getCycleNumber() * cpu.getRegisterValue();
+        }
       }
     }
 

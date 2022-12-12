@@ -8,7 +8,7 @@ public class CentralProcessorUnit {
   private int ticksLeftForCurrentInstruction = 0;
   private int cycleNumber = 1;
   private CpuInstruction instruction;
-  private long registerValue = 1;
+  private int registerValue = 1;
 
   public boolean isNotDone() {
     return !isDone;
@@ -55,7 +55,7 @@ public class CentralProcessorUnit {
    *
    * @return THe register value
    */
-  public long getRegisterValue() {
+  public int getRegisterValue() {
     return registerValue;
   }
 
