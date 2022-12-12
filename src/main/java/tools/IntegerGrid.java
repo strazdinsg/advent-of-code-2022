@@ -3,42 +3,8 @@ package tools;
 /**
  * Stores a grid of integers.
  */
-public class IntegerGrid {
+public class IntegerGrid extends ConvertedGrid {
   private int[][] grid;
-
-  private IntegerGrid() {
-  }
-
-  /**
-   * Create an integer grid from a string grid.
-   *
-   * @param stringGrid The string grid to interpret
-   * @return Grid of integers
-   * @throws IllegalArgumentException if the provided grid is either empty or any cell
-   *                                  contains a non-integer value
-   */
-  public static IntegerGrid createFrom(StringGrid stringGrid) throws IllegalArgumentException {
-    if (stringGrid == null || stringGrid.getRowCount() == 0 || stringGrid.getColumnCount() == 0) {
-      throw new IllegalArgumentException("Can't convert empty string grid to integers");
-    }
-
-    IntegerGrid intGrid = new IntegerGrid();
-    intGrid.grid = new int[stringGrid.getRowCount()][stringGrid.getColumnCount()];
-
-    for (int i = 0; i < stringGrid.getRowCount(); ++i) {
-      String row = stringGrid.getRow(i);
-      for (int j = 0; j < row.length(); ++j) {
-        try {
-          intGrid.grid[i][j] = Integer.parseInt("" + row.charAt(j));
-        } catch (NumberFormatException e) {
-          throw new IllegalArgumentException("Provided string grid contains non-integer values");
-        }
-      }
-    }
-
-    return intGrid;
-  }
-
 
   /**
    * Get the number of rows stored in the grid.
@@ -71,5 +37,19 @@ public class IntegerGrid {
    */
   public int getValueAt(int row, int column) throws ArrayIndexOutOfBoundsException {
     return grid[row][column];
+  }
+
+  @Override
+  protected void setCellValueFromChar(int row, int column, char c) throws IllegalArgumentException {
+    try {
+      grid[row][column] = Integer.parseInt("" + c);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid integer value in the grid: " + c);
+    }
+  }
+
+  @Override
+  protected void createEmptyGrid(int rowCount, int columnCount) {
+    grid = new int[rowCount][columnCount];
   }
 }

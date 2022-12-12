@@ -4,7 +4,6 @@ import tools.Direction;
 import tools.InputFile;
 import tools.IntegerGrid;
 import tools.Logger;
-import tools.StringGrid;
 
 /**
  * Solution for the problem of Day 08
@@ -17,7 +16,7 @@ import tools.StringGrid;
  */
 public class Solver {
 
-  private IntegerGrid treeHeights;
+  private final IntegerGrid treeHeights = new IntegerGrid();
   private int rowCount;
   private int columnCount;
   private int visibleTreeCount;
@@ -40,11 +39,11 @@ public class Solver {
   private void solve() {
     InputFile inputFile = new InputFile("problem08.input");
     if (!inputFile.exists()) {
+      Logger.info("Input file not found!");
       return;
     }
 
-    StringGrid treeHeightsAsStrings = inputFile.readAllIntoGridBuffer();
-    treeHeights = IntegerGrid.createFrom(treeHeightsAsStrings);
+    treeHeights.initializeFrom(inputFile.readAllIntoGridBuffer());
     rowCount = treeHeights.getRowCount();
     columnCount = treeHeights.getColumnCount();
     initializeEmptyVisibilityData();
