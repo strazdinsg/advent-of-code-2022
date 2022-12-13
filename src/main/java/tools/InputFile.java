@@ -104,4 +104,17 @@ public class InputFile {
     }
     return buffer;
   }
+
+  /**
+   * Read one line of input, expect it to be empty. If end of file is reached, do
+   * nothing (no exception).
+   *
+   * @throws IllegalStateException If the line turns out not to be empty
+   */
+  public void skipEmptyLine() throws IllegalStateException {
+    String emptyLIne = readLine();
+    if (emptyLIne != null && !"".equals(emptyLIne)) {
+      throw new IllegalStateException("Expected empty line but got " + emptyLIne);
+    }
+  }
 }
