@@ -7,7 +7,7 @@ import java.util.List;
  * A list that can contain either integers or other lists. Effectively: all elements of
  * this list are ListOrInt objects.
  */
-public class ListOrInt {
+public class ListOrInt implements Comparable<ListOrInt> {
   // If this is set, this object represents a single integer
   private Integer integerValue;
   // If this is set, this object contains a list of integers or sub-lists
@@ -120,17 +120,14 @@ public class ListOrInt {
     }
   }
 
-  public static boolean isRightOrder(ListOrInt left, ListOrInt right) {
-    return left.compareTo(right) == -1;
-  }
-
   /**
    * Compare this object to e.
    *
    * @param e Object to compare to
    * @return -1 if this is smaller than e, 0 if equal to e, +1 if this is greater than e.
    */
-  private int compareTo(ListOrInt e) {
+  @Override
+  public int compareTo(ListOrInt e) {
     if (this.isInteger() && e.isInteger()) {
       return compareAsIntegers(e);
     } else {
@@ -139,13 +136,7 @@ public class ListOrInt {
   }
 
   private int compareAsIntegers(ListOrInt e) {
-    if (this.integerValue < e.integerValue) {
-      return -1;
-    } else if (this.integerValue > e.integerValue) {
-      return 1;
-    } else {
-      return 0;
-    }
+    return this.integerValue.compareTo(e.integerValue);
   }
 
   private int compareAsLists(ListOrInt e) {

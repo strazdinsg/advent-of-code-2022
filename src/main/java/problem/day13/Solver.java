@@ -28,22 +28,25 @@ public class Solver {
       return;
     }
 
-    int sum = 0;
-    int index = 0;
-    while (!inputFile.isEndOfFile()) {
-      ListOrInt left = readList(inputFile);
-      ListOrInt right = readList(inputFile);
-      inputFile.skipEmptyLine();
+    SignalList list = new SignalList();
 
-      if (left != null && right != null) {
-        index++;
-        if (ListOrInt.isRightOrder(left, right)) {
-          sum += index;
-        }
-      }
+    while (!inputFile.isEndOfFile()) {
+      list.add(readList(inputFile));
+      list.add(readList(inputFile));
+      inputFile.skipEmptyLine();
     }
 
-    Logger.info("Sum of indices: " + sum);
+    ListOrInt firstSpecItem = new ListOrInt("[[2]]");
+    ListOrInt secondSpecItem = new ListOrInt("[[6]]");
+    list.add(firstSpecItem);
+    list.add(secondSpecItem);
+
+    list.sort();
+
+    int firstIndex = list.indexOf(firstSpecItem);
+    int secondIndex = list.indexOf(secondSpecItem);
+    Logger.info("Special indices: " + firstIndex + " and " + secondIndex);
+    Logger.info("Answer for Part 2: " + (firstIndex * secondIndex));
   }
 
   private ListOrInt readList(InputFile inputFile) {
