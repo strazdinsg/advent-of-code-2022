@@ -47,7 +47,7 @@ public class Game {
       throw new IllegalArgumentException("Invalid game string format: " + gameString);
     }
     HandType opponentChoice = parseOpponentChoice(gameString.charAt(0));
-    HandType myChoice = parseMyChoice(gameString.charAt(2));
+    HandType myChoice = parseMyChoice(opponentChoice, GameResultType.from(gameString.charAt(2)));
     return new Game(myChoice, opponentChoice);
   }
 
@@ -69,12 +69,24 @@ public class Game {
     };
   }
 
-  private static HandType parseMyChoice(char myChoice) throws IllegalStateException {
-    return switch (myChoice) {
-      case 'X' -> HandType.ROCK;
-      case 'Y' -> HandType.PAPER;
-      case 'Z' -> HandType.SCISSORS;
-      default -> throw new IllegalArgumentException("Invalid hand: " + myChoice);
+  private static HandType parseMyChoice(HandType opponentChoice, GameResultType gameResult)
+      throws IllegalStateException {
+    return switch (opponentChoice) {
+      case ROCK -> switch (gameResult) {
+        case LOSE -> HandType.SCISSORS;
+        case WIN -> HandType.PAPER;
+        default -> HandType.ROCK;
+      };
+      case PAPER -> switch (gameResult) {
+        case LOSE -> HandType.ROCK;
+        case WIN -> HandType.SCISSORS;
+        default -> HandType.PAPER;
+      };
+      case SCISSORS -> switch (gameResult) {
+        case LOSE -> HandType.PAPER;
+        case WIN -> HandType.ROCK;
+        default -> HandType.SCISSORS;
+      };
     };
   }
 
