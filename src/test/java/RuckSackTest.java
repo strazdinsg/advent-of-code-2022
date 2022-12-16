@@ -1,39 +1,56 @@
 import org.junit.jupiter.api.Test;
-import problem.day03.RuckSack;
+import problem.day03.DuplicateFinder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RuckSackTest {
   @Test
   void testSimpleCases() {
-    RuckSack r = new RuckSack("A", "A");
-    assertEquals(27, r.getDuplicateItemPriority());
+    assertEquals(1, DuplicateFinder.getPriority('a'));
+    assertEquals(2, DuplicateFinder.getPriority('b'));
+    assertEquals(27, DuplicateFinder.getPriority('A'));
+    assertEquals(52, DuplicateFinder.getPriority('Z'));
 
-    r = new RuckSack("ABC", "CD");
-    assertEquals(29, r.getDuplicateItemPriority());
-
-    r = new RuckSack("aBcdef", "ABCDEF");
-    assertEquals(28, r.getDuplicateItemPriority());
+    assertEquals('B', DuplicateFinder.findDuplicateChar(new String[]{"aBcdef", "ABCDEF"}));
   }
 
   @Test
   void testGivenCases() {
-    RuckSack r = new RuckSack("vJrwpWtwJgWr", "hcsFMMfFFhFp");
-    assertEquals(16, r.getDuplicateItemPriority());
+    String[] compartments = DuplicateFinder.splitInTwo("vJrwpWtwJgWrhcsFMMfFFhFp");
+    assertEquals(2, compartments.length);
+    assertEquals("vJrwpWtwJgWr", compartments[0]);
+    assertEquals("hcsFMMfFFhFp", compartments[1]);
 
-    r = new RuckSack("jqHRNqRjqzjGDLGL", "rsFMfFZSrLrFZsSL");
-    assertEquals(38, r.getDuplicateItemPriority());
+    assertEquals('p', DuplicateFinder.findDuplicateChar(compartments));
+    assertEquals(16, DuplicateFinder.getPriority('p'));
 
-    r = RuckSack.createFrom("PmmdzqPrVvPwwTWBwg");
-    assertEquals(42, r.getDuplicateItemPriority());
+    assertEquals('L', DuplicateFinder.findDuplicateInBothCompartments(
+        "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL"));
 
-    r = RuckSack.createFrom("wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn");
-    assertEquals(22, r.getDuplicateItemPriority());
+    assertEquals('P', DuplicateFinder.findDuplicateInBothCompartments(
+        "PmmdzqPrVvPwwTWBwg"));
+  }
 
-    r = RuckSack.createFrom("ttgJtRGJQctTZtZT");
-    assertEquals(20, r.getDuplicateItemPriority());
+  @Test
+  void testBadgeSearch() {
+    testGroupBadge(
+        "vJrwpWtwJgWrhcsFMMfFFhFp",
+        "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
+        "PmmdzqPrVvPwwTWBwg",
+        18
+    );
+    testGroupBadge(
+        "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn",
+        "ttgJtRGJQctTZtZT",
+        "CrZsJsPPZsGzwwsLwLmpwMDw",
+        52
+    );
+  }
 
-    r = RuckSack.createFrom("CrZsJsPPZsGzwwsLwLmpwMDw");
-    assertEquals(19, r.getDuplicateItemPriority());
+  private void testGroupBadge(String rucksack1, String rucksack2, String rucksack3,
+                              int expectedBadgePriority) {
+    String[] elfSacks = new String[]{rucksack1, rucksack2, rucksack3};
+    Character badge = DuplicateFinder.findDuplicateChar(elfSacks);
+    assertEquals(expectedBadgePriority, DuplicateFinder.getPriority(badge));
   }
 }

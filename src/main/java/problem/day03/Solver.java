@@ -30,12 +30,23 @@ public class Solver {
 
     int prioritySum = 0;
     while (!inputFile.isEndOfFile()) {
-      String line = inputFile.readLine();
-      if (line != null) {
-        RuckSack sack = RuckSack.createFrom(line);
-        prioritySum += sack.getDuplicateItemPriority();
+      String[] groupRucksacks = readGroupRucksacks(inputFile);
+      if (groupRucksacks.length > 0) {
+        Character groupBadge = DuplicateFinder.findDuplicateChar(groupRucksacks);
+        prioritySum += DuplicateFinder.getPriority(groupBadge);
       }
     }
-    Logger.info("Duplicate item priority sum: " + prioritySum);
+    Logger.info("Priority sum: " + prioritySum);
+  }
+
+  private String[] readGroupRucksacks(InputFile inputFile) {
+    String line1 = inputFile.readLine();
+    if (line1 == null) {
+      return new String[]{};
+    }
+
+    String line2 = inputFile.readLine();
+    String line3 = inputFile.readLine();
+    return new String[]{line1, line2, line3};
   }
 }
