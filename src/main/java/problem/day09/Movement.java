@@ -38,6 +38,7 @@ public class Movement {
       case DOWN -> deltaY = length;
       case LEFT -> deltaX = -length;
       case RIGHT -> deltaX = length;
+      default -> throw new IllegalArgumentException("Illegal direction: " + direction);
     }
     movement = new Vector(deltaX, deltaY);
   }

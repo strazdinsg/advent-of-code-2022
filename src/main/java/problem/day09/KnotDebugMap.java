@@ -9,6 +9,11 @@ public class KnotDebugMap {
   private final char[][] map;
   private final Rectangle boundaries;
 
+  /**
+   * Create knot-map for debugging.
+   *
+   * @param boundaries The boundaries (size) of the map
+   */
   public KnotDebugMap(Rectangle boundaries) {
     map = new char[boundaries.getHeight()][boundaries.getWidth()];
     this.boundaries = boundaries;
@@ -20,7 +25,7 @@ public class KnotDebugMap {
   }
 
   /**
-   * Plot a knot on the map
+   * Plot a knot on the map.
    *
    * @param knotNumber   The number of the knot
    * @param knotPosition The position of the knot
@@ -30,6 +35,9 @@ public class KnotDebugMap {
     map[shiftedKnotPosition.getY()][shiftedKnotPosition.getX()] = ("" + knotNumber).charAt(0);
   }
 
+  /**
+   * Print the debug-map to the console.
+   */
   public void print() {
     System.out.println();
     for (int row = 0; row < map.length; ++row) {

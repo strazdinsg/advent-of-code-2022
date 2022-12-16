@@ -112,9 +112,9 @@ public class InputFile {
    * @throws IllegalStateException If the line turns out not to be empty
    */
   public void skipEmptyLine() throws IllegalStateException {
-    String emptyLIne = readLine();
-    if (emptyLIne != null && !"".equals(emptyLIne)) {
-      throw new IllegalStateException("Expected empty line but got " + emptyLIne);
+    String emptyLine = readLine();
+    if (emptyLine != null && !"".equals(emptyLine)) {
+      throw new IllegalStateException("Expected empty line but got " + emptyLine);
     }
   }
 }
