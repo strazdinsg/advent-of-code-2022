@@ -15,6 +15,8 @@ public class InputFile {
   private BufferedReader reader;
   private boolean endOfFileReached;
 
+  final char[] charBuffer = new char[1];
+
   /**
    * Open an input file for reading.
    *
@@ -133,5 +135,23 @@ public class InputFile {
       line = readLine();
     }
     return lines;
+  }
+
+  /**
+   * Read one character from the file.
+   *
+   * @return The character or null when end of file is reached
+   */
+  public Character readOneChar() {
+    Character result = null;
+    try {
+      int n = reader.read(charBuffer, 0, 1);
+      if (n == 1) {
+        result = charBuffer[0];
+      }
+    } catch (IOException e) {
+      // Will return null
+    }
+    return result;
   }
 }
