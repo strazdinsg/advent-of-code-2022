@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Handles input-data files.
@@ -116,5 +118,20 @@ public class InputFile {
     if (emptyLine != null && !"".equals(emptyLine)) {
       throw new IllegalStateException("Expected empty line but got " + emptyLine);
     }
+  }
+
+  /**
+   * Read lines from the input file until an empty line (or end of file) is reached.
+   *
+   * @return The lines as a list, not including the empty line
+   */
+  public List<String> readLinesUntilEmptyLine() {
+    List<String> lines = new LinkedList<>();
+    String line = readLine();
+    while (!isEndOfFile() && line != null && !"".equals(line)) {
+      lines.add(line);
+      line = readLine();
+    }
+    return lines;
   }
 }
