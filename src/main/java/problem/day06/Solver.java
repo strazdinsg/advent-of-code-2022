@@ -10,6 +10,7 @@ import tools.Logger;
  */
 public class Solver {
   private static final int START_SIGNAL_LENGTH = 4;
+  private static final int MESSAGE_START_LENGTH = 14;
 
   /**
    * Run the solver - solve the puzzle.
@@ -30,7 +31,7 @@ public class Solver {
     }
 
     Integer startPosition = null;
-    StartSignalDetector detector = new StartSignalDetector(START_SIGNAL_LENGTH);
+    StartSignalDetector detector = new StartSignalDetector(MESSAGE_START_LENGTH);
 
     while (!inputFile.isEndOfFile() && startPosition == null) {
       Character c = inputFile.readOneChar();
@@ -42,6 +43,6 @@ public class Solver {
       }
     }
 
-    Logger.info("Start signal received after first " + startPosition + " symbols");
+    Logger.info("Message start after first " + startPosition + " symbols");
   }
 }
