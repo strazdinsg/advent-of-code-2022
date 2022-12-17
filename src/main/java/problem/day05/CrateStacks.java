@@ -86,16 +86,17 @@ public class CrateStacks {
   /**
    * Move crates between the stacks according to the given command.
    *
-   * @param command The command describing the necessary crate movemen
+   * @param command The command describing the necessary crate movement
    */
   public void move(Command command) {
+    Stack<Character> temporaryStack = new Stack<>();
+    Stack<Character> fromStack = stacks[command.getFromIndex() - 1];
+    Stack<Character> toStack = stacks[command.getToIndex() - 1];
     for (int i = 0; i < command.getCount(); ++i) {
-      moveOne(command.getFromIndex() - 1, command.getToIndex() - 1);
+      temporaryStack.push(fromStack.pop());
     }
-  }
-
-  private void moveOne(int fromStack, int toStack) {
-    Character crate = stacks[fromStack].pop();
-    stacks[toStack].push(crate);
+    while (!temporaryStack.isEmpty()) {
+      toStack.add(temporaryStack.pop());
+    }
   }
 }
