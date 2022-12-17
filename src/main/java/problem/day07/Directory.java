@@ -2,6 +2,7 @@ package problem.day07;
 
 import java.util.HashMap;
 import java.util.Map;
+import tools.Logger;
 
 /**
  * A directory within the file system.
@@ -15,6 +16,8 @@ public class Directory {
   private final Map<String, Integer> fileSizes = new HashMap<>();
 
   private static long totalFileSizeSum;
+
+  private static long minSizeFound;
 
   private Directory(String name, Directory parent) {
     this.name = name;
@@ -36,6 +39,14 @@ public class Directory {
 
   public static long getTotalSizeSum() {
     return totalFileSizeSum;
+  }
+
+  public static void resetMinSize() {
+    minSizeFound = Long.MAX_VALUE;
+  }
+
+  public static long getMinSize() {
+    return minSizeFound;
   }
 
   /**
@@ -127,5 +138,33 @@ public class Directory {
       String parentPath = parent != null ? parent.getFullPath() : "";
       return parentPath + "/" + name;
     }
+  }
+
+  /**
+   * Search for the smallest directory exceeding minSize.
+   *
+   * @param minSize Minimum size for the directory to look for
+   * @return The size of this directory. Used for recursive calls.
+   *     Note: the result (the minimum size) can be found by calling the getMinSize() method
+   *     afterwards.
+   */
+  public long searchSmallestDirExceeding(long minSize) {
+    long subDirSum = 0;
+    for (Directory subDir : subDirectories.values()) {
+      long subDirSize = subDir.searchSmallestDirExceeding(minSize);
+      subDirSum += subDirSize;
+      if (subDirSize >= minSize && subDirSize < minSizeFound) {
+        minSizeFound = subDirSize;
+      }
+    }
+
+    long thisDirSize = getTotalFileSize() + subDirSum;
+    if (thisDirSize >= minSize
+        && (minSizeFound == Long.MAX_VALUE || thisDirSize < minSizeFound)) {
+      minSizeFound = thisDirSize;
+      Logger.info("Size of " + getFullPath() + ": " + minSizeFound);
+    }
+
+    return thisDirSize;
   }
 }

@@ -91,4 +91,25 @@ public class FileSystem {
     root.countSumOfDirsNotExceeding(maxDirSize);
     return Directory.getTotalSizeSum();
   }
+
+  /**
+   * Get the total size of all files stored in the file system.
+   *
+   * @return The total size of all files
+   */
+  public long getTotalSize() {
+    return root.countSumOfDirsNotExceeding(0);
+  }
+
+  /**
+   * Get the size of the smallest directory exceeding the given threshold.
+   *
+   * @param minSize The minimum size to look for
+   * @return The minimum size found
+   */
+  public long getSmallestDirExceeding(long minSize) {
+    Directory.resetMinSize();
+    root.searchSmallestDirExceeding(minSize);
+    return Directory.getMinSize();
+  }
 }
