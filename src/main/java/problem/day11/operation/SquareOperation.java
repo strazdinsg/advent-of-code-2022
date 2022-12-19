@@ -5,7 +5,7 @@ package problem.day11.operation;
  */
 public class SquareOperation implements Operation {
   @Override
-  public int perform(int worryLevel) {
+  public long perform(long worryLevel) {
     return worryLevel * worryLevel;
   }
 

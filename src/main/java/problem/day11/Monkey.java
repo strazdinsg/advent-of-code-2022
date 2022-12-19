@@ -8,14 +8,15 @@ import tools.Logger;
  * A monkey throwing stuff according to a specific algorithm.
  */
 public class Monkey {
-  private static final Integer BOREDOM_DIVIDER = 3;
+  private static final long BOREDOM_DIVIDER = 1L;
 
-  private final List<Integer> items;
+  private final List<Long> itemWorries;
   private final Operation operation;
   private final DivisionCondition testCondition;
   private final ThrowActions actions;
 
-  private int inspectionCount;
+  private long inspectionCount;
+  private int leastCommonMultiplier;
 
   /**
    * Create a new monkey.
@@ -25,9 +26,9 @@ public class Monkey {
    * @param testCondition The test condition the monkey performs in each step
    * @param actions       The possible actions - to which monkeys the items are thrown
    */
-  public Monkey(List<Integer> items, Operation operation, DivisionCondition testCondition,
+  public Monkey(List<Long> items, Operation operation, DivisionCondition testCondition,
                 ThrowActions actions) {
-    this.items = items;
+    this.itemWorries = items;
     this.operation = operation;
     this.testCondition = testCondition;
     this.actions = actions;
@@ -43,8 +44,8 @@ public class Monkey {
     return actions.getDestination(testCondition.isTrueFor(getFirstItemWorryLevel()));
   }
 
-  private int getFirstItemWorryLevel() {
-    return items.iterator().next();
+  private long getFirstItemWorryLevel() {
+    return itemWorries.iterator().next();
   }
 
   /**
@@ -52,21 +53,21 @@ public class Monkey {
    *
    * @param worryLevel The current worry-level of the received item
    */
-  public void addItem(Integer worryLevel) {
-    items.add(worryLevel);
+  public void addItem(long worryLevel) {
+    itemWorries.add(worryLevel);
   }
 
   @Override
   public String toString() {
-    return items.toString() + ", inspectionCount: " + inspectionCount;
+    return itemWorries.toString() + ", inspectionCount: " + inspectionCount;
   }
 
   public boolean hasItems() {
-    return !items.isEmpty();
+    return !itemWorries.isEmpty();
   }
 
   public void removeFirstItem() {
-    items.remove(0);
+    itemWorries.remove(0);
   }
 
   /**
@@ -74,16 +75,38 @@ public class Monkey {
    *
    * @return The updated worry-level of the first item.
    */
-  public int updateWorryLevelForFirstItem() {
-    int worryLevel = getFirstItemWorryLevel();
-    worryLevel = operation.perform(worryLevel) / BOREDOM_DIVIDER;
+  public long updateWorryLevelForFirstItem() {
+    long worryLevel = getFirstItemWorryLevel();
+    worryLevel = operation.perform(worryLevel);
+    worryLevel = decreaseWorry(worryLevel);
     setFirstItemWorryLevel(worryLevel);
     inspectionCount++;
     return worryLevel;
   }
 
-  private void setFirstItemWorryLevel(int worryLevel) {
-    items.set(0, worryLevel);
+  private long decreaseWorry(long worryLevel) {
+    if (isFirstPartOfTask()) {
+      worryLevel = decreaseWorryByDivision(worryLevel);
+    } else {
+      worryLevel = keepRemainderOfMegaDivision(worryLevel);
+    }
+    return worryLevel;
+  }
+
+  private long keepRemainderOfMegaDivision(long worryLevel) {
+    return worryLevel % leastCommonMultiplier;
+  }
+
+  private long decreaseWorryByDivision(long worryLevel) {
+    return worryLevel / BOREDOM_DIVIDER;
+  }
+
+  private boolean isFirstPartOfTask() {
+    return BOREDOM_DIVIDER > 1;
+  }
+
+  private void setFirstItemWorryLevel(long worryLevel) {
+    itemWorries.set(0, worryLevel);
   }
 
   /**
@@ -91,7 +114,22 @@ public class Monkey {
    *
    * @return The total inspection count
    */
-  public int getInspectionCount() {
+  public long getInspectionCount() {
     return inspectionCount;
+  }
+
+  /**
+   * Set the mega-divider: the least common multiplier (LCM) for all monkeys. This can be used to
+   * decrease the growing worry in each turn. Instead of keeping the high value, we can simply
+   * Keep the worry's remainder from division by this LCM.
+   *
+   * @param leastCommonMultiplier d1 * d2 * ... * dN (see idea in Solver)
+   */
+  public void setLeastCommonMultiplier(int leastCommonMultiplier) {
+    this.leastCommonMultiplier = leastCommonMultiplier;
+  }
+
+  public long getTestDivider() {
+    return testCondition.getDivider();
   }
 }

@@ -11,7 +11,7 @@ public class IncrementOperation implements Operation {
   }
 
   @Override
-  public int perform(int worryLevel) {
+  public long perform(long worryLevel) {
     return worryLevel + increment;
   }
 

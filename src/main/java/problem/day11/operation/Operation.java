@@ -11,5 +11,5 @@ public interface Operation {
    * @param worryLevel The current (old) worry-level value
    * @return The new worry-level value
    */
-  int perform(int worryLevel);
+  long perform(long worryLevel);
 }

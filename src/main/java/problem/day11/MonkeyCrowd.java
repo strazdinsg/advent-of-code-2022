@@ -24,22 +24,20 @@ public class MonkeyCrowd {
    */
   public void simulateRound() {
     for (int i = 0; i < monkeys.size(); ++i) {
-      Logger.info("Monkey " + i + ":");
       Monkey monkey = monkeys.get(i);
       while (monkey.hasItems()) {
-        int newWorryLevel = monkey.updateWorryLevelForFirstItem();
+        long newWorryLevel = monkey.updateWorryLevelForFirstItem();
         int destinationIndex = monkey.getFirstItemDestination();
         monkey.removeFirstItem();
         monkeys.get(destinationIndex).addItem(newWorryLevel);
-        Logger.info("    => Item with worry level " + newWorryLevel + " is thrown to monkey "
-            + destinationIndex);
       }
     }
-    printMonkeyItems();
-    Logger.info("");
   }
 
-  private void printMonkeyItems() {
+  /**
+   * Print monkey stats, for debugging.
+   */
+  public void printMonkeyStats() {
     Logger.info("========================================");
     for (int i = 0; i < monkeys.size(); ++i) {
       Logger.info("Monkey " + i + ": " + monkeys.get(i));
@@ -53,24 +51,39 @@ public class MonkeyCrowd {
    * @return The monkey business score (multiplication of two highest values of
    *     item-inspection-count-per-monkey)
    */
-  public int getBusinessScore() {
+  public long getBusinessScore() {
     int maxMonkeyIndex = findMaxInspectionsSmallerThan(Integer.MAX_VALUE);
-    int maxInspections = monkeys.get(maxMonkeyIndex).getInspectionCount();
+    long maxInspections = monkeys.get(maxMonkeyIndex).getInspectionCount();
     int secondMaxMonkeyIndex = findMaxInspectionsSmallerThan(maxInspections);
-    int secondMaxInspections = monkeys.get(secondMaxMonkeyIndex).getInspectionCount();
+    long secondMaxInspections = monkeys.get(secondMaxMonkeyIndex).getInspectionCount();
     return maxInspections * secondMaxInspections;
   }
 
-  private int findMaxInspectionsSmallerThan(int threshold) {
+  private int findMaxInspectionsSmallerThan(long threshold) {
     int maxIndex = -1;
-    int maxValue = -1;
+    long maxValue = -1;
     for (int i = 0; i < monkeys.size(); ++i) {
-      int inspectionCount = monkeys.get(i).getInspectionCount();
+      long inspectionCount = monkeys.get(i).getInspectionCount();
       if (inspectionCount > maxValue && inspectionCount < threshold) {
         maxValue = inspectionCount;
         maxIndex = i;
       }
     }
     return maxIndex;
+  }
+
+  /**
+   * Set the mega-divider for all monkeys: the least common multiple.
+   */
+  public void updateLeastCommonMultiple() {
+    int lcm = 1;
+    for (Monkey m : monkeys) {
+      lcm *= m.getTestDivider();
+    }
+    Logger.info("LCM = " + lcm);
+
+    for (Monkey m : monkeys) {
+      m.setLeastCommonMultiplier(lcm);
+    }
   }
 }

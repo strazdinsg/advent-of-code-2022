@@ -23,7 +23,7 @@ public class MonkeyFileParser {
    */
   public static Monkey parse(InputFile inputFile, int monkeyIndex) throws IllegalArgumentException {
     validateMonkeyIntroLine(inputFile, monkeyIndex);
-    List<Integer> initialItems = parseInitialItems(inputFile);
+    List<Long> initialItems = parseInitialItems(inputFile);
     Operation operation = parseOperation(inputFile);
     DivisionCondition testCondition = parseTest(inputFile);
     ThrowActions actions = parseActions(inputFile);
@@ -39,9 +39,9 @@ public class MonkeyFileParser {
     }
   }
 
-  private static List<Integer> parseInitialItems(InputFile inputFile)
+  private static List<Long> parseInitialItems(InputFile inputFile)
       throws IllegalArgumentException {
-    List<Integer> items = new LinkedList<>();
+    List<Long> items = new LinkedList<>();
     String line = inputFile.readLine();
     if (!line.startsWith("  Starting items: ")) {
       throw new IllegalArgumentException("Invalid starting item line: " + line);
@@ -50,7 +50,7 @@ public class MonkeyFileParser {
     return items;
   }
 
-  private static void addItems(List<Integer> items, String itemString)
+  private static void addItems(List<Long> items, String itemString)
       throws IllegalArgumentException {
     String[] parts = itemString.split(", ");
     if (parts.length < 1) {
@@ -58,7 +58,7 @@ public class MonkeyFileParser {
     }
     for (String s : parts) {
       try {
-        items.add(Integer.parseInt(s));
+        items.add(Long.parseLong(s));
       } catch (NumberFormatException e) {
         throw new IllegalArgumentException("Invalid item integer: " + s);
       }
