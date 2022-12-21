@@ -1,6 +1,7 @@
 package problem.day09;
 
 import tools.Logger;
+import tools.Rectangle;
 import tools.Vector;
 
 /**

@@ -1,5 +1,6 @@
 package problem.day09;
 
+import tools.Rectangle;
 import tools.Vector;
 
 /**
