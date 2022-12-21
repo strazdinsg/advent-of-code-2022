@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Test;
 import problem.day09.InfiniteRopeField;
 import problem.day09.Movement;
-import problem.day09.Rectangle;
+import tools.Rectangle;
 import problem.day09.Rope;
 import tools.Vector;
 import static org.junit.jupiter.api.Assertions.assertEquals;

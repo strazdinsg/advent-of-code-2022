@@ -51,9 +51,70 @@ public class StringGrid {
    *
    * @param rowIndex Index of the row to return. Indexing starts at zero.
    * @return The row
-   * @throws IndexOutOfBoundsException if hte provided rowIndex is invalid
+   * @throws IllegalArgumentException if the provided rowIndex is invalid
    */
-  public String getRow(int rowIndex) throws IndexOutOfBoundsException {
+  public String getRow(int rowIndex) throws IllegalArgumentException {
+    if (rowIndex < 0 || rowIndex >= getRowCount()) {
+      throw new IllegalArgumentException("Row outside the grid: " + rowIndex);
+    }
     return rows.get(rowIndex);
+  }
+
+  /**
+   * Replace a character at a given row and given column with the given character c.
+   *
+   * @param rowIndex    The row of the character to replace
+   * @param columnIndex The column of the character to replace
+   * @param c           The replacement character
+   * @throws IllegalArgumentException When the coordinates are outside the current grid
+   */
+  public void replaceCharacter(int rowIndex, int columnIndex, char c)
+      throws IllegalArgumentException {
+    assertColumnWithinBoundaries(columnIndex);
+
+    String row = getRow(rowIndex);
+    replaceRow(rowIndex, replaceCharAt(row, columnIndex, c));
+  }
+
+  private void assertColumnWithinBoundaries(int columnIndex) {
+    if (columnIndex < 0 || columnIndex >= getColumnCount()) {
+      throw new IllegalArgumentException("Column outside the grid: " + columnIndex);
+    }
+  }
+
+  private static String replaceCharAt(String s, int i, char c) {
+    return s.substring(0, i) + c + s.substring(i + 1);
+  }
+
+  /**
+   * Replace a row at the given place with a given string.
+   *
+   * @param rowIndex The index of the existing row to replace
+   * @param row      The replacement row
+   * @throws IllegalArgumentException When the row is outside the current grid boundaries
+   */
+  public void replaceRow(int rowIndex, String row) throws IllegalArgumentException {
+    assertRowWithinBoundaries(rowIndex);
+    rows.set(rowIndex, row);
+  }
+
+  private void assertRowWithinBoundaries(int rowIndex) {
+    if (rowIndex < 0 || rowIndex >= getRowCount()) {
+      throw new IllegalArgumentException("Invalid row, outside the grid: " + rowIndex);
+    }
+  }
+
+  /**
+   * Get character at a specific row and column.
+   *
+   * @param rowIndex    Index of the row
+   * @param columnIndex Index of the column
+   * @return The character at the specified row and column
+   * @throws IllegalArgumentException When row index of column index out of bounds
+   */
+  public char getCharacter(int rowIndex, int columnIndex) throws IllegalArgumentException {
+    assertColumnWithinBoundaries(columnIndex);
+    String row = getRow(rowIndex);
+    return row.charAt(columnIndex);
   }
 }
