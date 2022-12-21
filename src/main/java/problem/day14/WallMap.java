@@ -65,7 +65,6 @@ public class WallMap {
   }
 
   private void drawLine(Vector from, Vector to) {
-    Logger.info("Draw line " + from + " - " + to);
     int horizontalStep = to.getX() - from.getX();
     int verticalStep = to.getY() - from.getY();
     // make sure the steps are either +1 or -1, or 0
@@ -121,7 +120,7 @@ public class WallMap {
     boolean dropping = true;
     Vector grainPosition = sandSource;
     while (dropping) {
-      if (hasSandOverflown(grainPosition)) {
+      if (isSourceBlocked() || hasSandOverflown(grainPosition)) {
         overflow = true;
         dropping = false;
       } else if (canDropStraightDown(grainPosition)) {
@@ -138,6 +137,10 @@ public class WallMap {
     if (!overflow) {
       markCellAsSand(grainPosition);
     }
+  }
+
+  private boolean isSourceBlocked() {
+    return !isCellEmpty(sandSource);
   }
 
   private boolean hasSandOverflown(Vector grainPosition) {
@@ -196,5 +199,13 @@ public class WallMap {
    */
   public void normalizeBoundaries() {
     boundaries = boundaries.minus(boundaries.getTopLeft());
+  }
+
+  /**
+   * Fill the bottom row (the floor) with wall-cells.
+   */
+  public void fillFloorByWall() {
+    String floorRow = ("" + WALL_CELL).repeat(grid.getColumnCount());
+    grid.replaceRow(grid.getRowCount() - 1, floorRow);
   }
 }

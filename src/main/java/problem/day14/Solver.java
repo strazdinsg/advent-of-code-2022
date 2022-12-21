@@ -35,37 +35,52 @@ public class Solver {
     }
 
     List<Path> paths = readLinesFrom(inputFile);
-    Rectangle boundaries = findMapBoundaries(paths);
+    Rectangle boundaries = findMapBoundariesIncludingFloor(paths);
     Logger.info("Boundaries: " + boundaries);
-    WallMap map = new WallMap(boundaries, SAND_SOURCE_COORDINATES);
 
+    WallMap map = new WallMap(boundaries, SAND_SOURCE_COORDINATES);
     for (Path path : paths) {
       map.drawPath(path);
     }
-
     map.normalizeBoundaries();
-
-    map.debugPrint();
+    map.fillFloorByWall();
 
     int droppedGrainCount = 0;
     while (map.isSandStandingStill()) {
       map.dropOneGrain();
-      Logger.info("");
-      map.debugPrint();
       droppedGrainCount++;
     }
 
     Logger.info("Could drop " + (droppedGrainCount - 1) + " until it started to spill over");
-
   }
 
-  private Rectangle findMapBoundaries(List<Path> paths) {
+  private Rectangle findMapBoundariesIncludingFloor(List<Path> paths) {
     Rectangle boundaries = new Rectangle(SAND_SOURCE_COORDINATES, SAND_SOURCE_COORDINATES);
 
     for (Path p : paths) {
       boundaries = boundaries.extend(p.getBoundaries());
     }
+
+    boundaries = extendByFloor(boundaries);
+
     return boundaries;
+  }
+
+  /**
+   * Extend the boundaries by a floor which is 2 pixels below the boundaries and
+   * spans H cells to the right and left from the sand source, where H is the
+   * height of the new boundaries (including the 2 pixels of new height).
+   *
+   * @param boundaries The current boundaries
+   * @return The extended boundaries
+   */
+  private Rectangle extendByFloor(Rectangle boundaries) {
+    int centerX = SAND_SOURCE_COORDINATES.getX();
+    int height = boundaries.getHeight() + 2;
+    int minX = centerX - height;
+    int maxX = centerX + height;
+    int maxY = boundaries.getBottomRight().getY() + 2;
+    return boundaries.extend(new Rectangle(minX, maxY, maxX, maxY));
   }
 
   private List<Path> readLinesFrom(InputFile inputFile) {
