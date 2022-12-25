@@ -8,7 +8,7 @@ import java.util.List;
  * A collection of non-overlapping integer ranges.
  */
 public class NonOverlappingRanges {
-  private List<IntegerRange> ranges = new LinkedList<>();
+  private final List<IntegerRange> ranges = new LinkedList<>();
 
   /**
    * Add a new range. Merge ranges if necessary.
@@ -126,19 +126,6 @@ public class NonOverlappingRanges {
   }
 
   /**
-   * Get the total sum of all range lengths.
-   *
-   * @return The sum of range lengths, 0 if no ranges found
-   */
-  public int getLengthSum() {
-    int sum = 0;
-    for (IntegerRange range : ranges) {
-      sum += range.getLength();
-    }
-    return sum;
-  }
-
-  /**
    * Get the number of non-overlapping ranges.
    *
    * @return The number of non-overlapping ranges stored inside this collection
@@ -156,5 +143,39 @@ public class NonOverlappingRanges {
    */
   public IntegerRange getRange(int index) {
     return ranges.get(index);
+  }
+
+  /**
+   * Check whether any of the stored ranges covers r fully.
+   *
+   * @param r Range to look for
+   * @return True if any of the stored ranges covers r fully, false otherwise.
+   */
+  public boolean containsRangeFully(IntegerRange r) {
+    boolean covered = false;
+    Iterator<IntegerRange> it = ranges.iterator();
+    while (it.hasNext() && !covered) {
+      IntegerRange range = it.next();
+      covered = range.containsFully(r);
+    }
+    return covered;
+  }
+
+  /**
+   * Check the stored ranges, find if there is a gap which fits within range r.
+   *
+   * @param r The range of values to check
+   * @return The gap value or null if no gaps are found
+   */
+  public Integer findGapInRange(IntegerRange r) {
+    if (containsRangeFully(r)) {
+      return null;
+    }
+
+    if (ranges.size() != 2) {
+      throw new IllegalStateException("Gap search for more than two ranges is not implemented...");
+    }
+
+    return Math.min(ranges.get(0).getEnd(), ranges.get(1).getEnd()) + 1;
   }
 }

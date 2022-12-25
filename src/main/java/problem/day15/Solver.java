@@ -6,7 +6,6 @@ import tools.InputFile;
 import tools.IntegerRange;
 import tools.Logger;
 import tools.NonOverlappingRanges;
-import tools.Vector;
 
 /**
  * Solution for the problem of Day 15
@@ -21,7 +20,8 @@ import tools.Vector;
  * Also: we need to remove the beacons from the clean lines.
  */
 public class Solver {
-  private static final int INTERESTING_ROW_INDEX = 2000000;
+  private static final int MAX_ROW = 4000000;
+  private static final int MAX_COLUMN = 4000000;
 
   /**
    * Run the solver - solve the puzzle.
@@ -42,7 +42,6 @@ public class Solver {
     }
 
     List<Sensor> sensors = new LinkedList<>();
-
     while (!inputFile.isEndOfFile()) {
       String line = inputFile.readLine();
       if (line != null) {
@@ -50,21 +49,33 @@ public class Solver {
       }
     }
 
+    boolean gapFound = false;
+    int gapRow = 0;
+    IntegerRange scanRange = new IntegerRange(0, MAX_COLUMN);
+    
+    while (gapRow < MAX_ROW && !gapFound) {
+      Integer gapX = findCleanLines(sensors, gapRow).findGapInRange(scanRange);
+      if (gapX != null) {
+        Logger.info("Disturbance in the force at (" + gapX + ", " + gapRow + "), tuning freq = "
+            + getTuningFrequency(gapX, gapRow));
+        gapFound = true;
+      }
+      ++gapRow;
+    }
+  }
+
+  private long getTuningFrequency(long x, long y) {
+    return x * 4000000 + y;
+  }
+
+  private static NonOverlappingRanges findCleanLines(List<Sensor> sensors, int row) {
     NonOverlappingRanges cleanLines = new NonOverlappingRanges();
     for (Sensor sensor : sensors) {
-      IntegerRange cleanLine = sensor.findCleanLine(INTERESTING_ROW_INDEX);
+      IntegerRange cleanLine = sensor.findCleanLine(row);
       if (cleanLine != null) {
         cleanLines.add(cleanLine);
       }
     }
-
-    for (Sensor sensor : sensors) {
-      Vector beaconPosition = sensor.getClosestBeaconPosition();
-      if (beaconPosition.getY() == INTERESTING_ROW_INDEX) {
-        cleanLines.removeSingleValue(beaconPosition.getX());
-      }
-    }
-
-    Logger.info(cleanLines.getLengthSum() + "");
+    return cleanLines;
   }
 }
