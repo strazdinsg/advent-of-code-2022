@@ -6,8 +6,8 @@ import java.util.Objects;
  * A range of integers.
  */
 public class IntegerRange {
-  private final int start;
-  private final int end;
+  private int start;
+  private int end;
 
   /**
    * Create an integer range, which spans from the start to the end, inclusive.
@@ -17,12 +17,16 @@ public class IntegerRange {
    * @throws IllegalArgumentException If start > end
    */
   public IntegerRange(int start, int end) throws IllegalArgumentException {
+    this.start = start;
+    this.end = end;
+    validate();
+  }
+
+  private void validate() {
     if (start > end) {
       throw new IllegalArgumentException("Start (" + start + ") can't be higher than end("
           + end + ")");
     }
-    this.start = start;
-    this.end = end;
   }
 
   /**
@@ -33,34 +37,6 @@ public class IntegerRange {
    */
   public boolean containsFully(IntegerRange r) {
     return r != null && start <= r.start && end >= r.end;
-  }
-
-  /**
-   * Creates a new integer range which represents this minus r. This can't contain r fully
-   * and vice versa.
-   *
-   * @param r The range to subtract
-   * @return A new integer range representing this - m
-   * @throws IllegalArgumentException When preconditions for r are not met.
-   */
-  public IntegerRange minus(IntegerRange r) throws IllegalArgumentException {
-    if (r == null) {
-      throw new IllegalArgumentException("Can't subtract a null range");
-    } else if (this.containsFully(r) || r.containsFully(this)) {
-      throw new IllegalArgumentException("minus operation can't be used on fully-contained ranges."
-          + " Called for " + this + " and " + r);
-    }
-
-    IntegerRange result;
-    if (r.startsWithin(this)) {
-      result = new IntegerRange(this.start, r.start - 1);
-    } else if (r.endsWithin(this)) {
-      result = new IntegerRange(r.end + 1, this.end);
-    } else {
-      result = new IntegerRange(this.start, this.end);
-    }
-
-    return result;
   }
 
   /**
@@ -104,20 +80,6 @@ public class IntegerRange {
    */
   public int getStart() {
     return start;
-  }
-
-  /**
-   * Extend the range.
-   *
-   * @param newEnd The new end-boundary of the range.
-   * @return A new range where the start is the same, but the end is set to newEnd
-   * @throws IllegalArgumentException When the new end is smaller than the previous end
-   */
-  public IntegerRange extendEnd(int newEnd) throws IllegalArgumentException {
-    if (newEnd < end) {
-      throw new IllegalArgumentException("Invalid extension from " + end + " to " + newEnd);
-    }
-    return new IntegerRange(start, newEnd);
   }
 
   @Override
@@ -168,26 +130,6 @@ public class IntegerRange {
   }
 
   /**
-   * Cut this range into two - around the given cutValue. Note: this range is left unchanged!
-   *
-   * @param cutValue The value to cut at. This will be not included in the new ranges.
-   * @return Two new ranges: one starting at start and ending at cutValue - 1, the other starting
-   *     at cutValue + 1 and ending at end.
-   * @throws IllegalArgumentException if the cutValue is not inside the range or if it overlaps
-   *                                  with start or end
-   */
-  public IntegerRange[] cutAt(int cutValue) throws IllegalArgumentException {
-    if (cutValue <= start || cutValue >= end) {
-      throw new IllegalArgumentException("Invalid cut value (" + cutValue + ") for range " + this);
-    }
-
-    return new IntegerRange[]{
-        new IntegerRange(start, cutValue - 1),
-        new IntegerRange(cutValue + 1, end)
-    };
-  }
-
-  /**
    * Get the length of the range, inclusive start and end.
    *
    * @return The length of the range.
@@ -195,4 +137,27 @@ public class IntegerRange {
   public int getLength() {
     return end - start + 1;
   }
+
+  /**
+   * Set a new start value for the range.
+   *
+   * @param newStart The new start value
+   * @throws IllegalArgumentException when start > end
+   */
+  public void setStart(int newStart) throws IllegalArgumentException {
+    this.start = newStart;
+    validate();
+  }
+
+  /**
+   * Set a new end value for the range.
+   *
+   * @param newEnd The new end value
+   * @throws IllegalArgumentException when start > end
+   */
+  public void setEnd(int newEnd) throws IllegalArgumentException {
+    this.end = newEnd;
+    validate();
+  }
+
 }

@@ -21,8 +21,7 @@ import tools.Vector;
  * Also: we need to remove the beacons from the clean lines.
  */
 public class Solver {
-  //  private static final int INTERESTING_ROW_INDEX = 2000000;
-  private static final int INTERESTING_ROW_INDEX = 10;
+  private static final int INTERESTING_ROW_INDEX = 2000000;
 
   /**
    * Run the solver - solve the puzzle.

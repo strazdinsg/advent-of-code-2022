@@ -1,6 +1,6 @@
 package tools;
 
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,77 +19,85 @@ public class NonOverlappingRanges {
     if (ranges.isEmpty()) {
       ranges.add(range);
     } else {
-      mergeWithExistingRanges(range);
-      mergeOverlapping();
+      removeTotallyCovered(range);
+      mergeWithExisting(range);
     }
   }
 
-  private void mergeWithExistingRanges(IntegerRange range) {
-    List<IntegerRange> newRanges = new LinkedList<>();
-    for (IntegerRange oldRange : ranges) {
-      // TODO - fix this
-      newRanges.addAll(merge(oldRange, range));
-    }
-    ranges = newRanges;
-  }
-
-  /**
-   * Merge the two ranges, remove overlapping regions. If one range fully contains the other,
-   * return the longest range. If they overlap, merge them in a single range. Otherwise,
-   * return both.
-   *
-   * @param r1 First range
-   * @param r2 Second range
-   * @return The merging result
-   */
-  private Collection<IntegerRange> merge(IntegerRange r1, IntegerRange r2) {
-    List<IntegerRange> mergedRanges = new LinkedList<>();
-
-    if (r1.containsFully(r2)) {
-      mergedRanges.add(r1);
-    } else if (r2.containsFully(r1)) {
-      mergedRanges.add(r2);
-    } else if (r2.startsWithin(r1)) {
-      mergedRanges.add(r1.extendEnd(r2.getEnd()));
-    } else if (r1.startsWithin(r2)) {
-      mergedRanges.add(r2.extendEnd(r1.getEnd()));
-    } else {
-      mergedRanges.add(r1);
-      mergedRanges.add(r2);
-    }
-
-    return mergedRanges;
-  }
-
-  /**
-   * As a result of adding a new range some resulting ranges may overlap. Go through all
-   * pairs of ranges. If any pair overlaps, merge them.
-   */
-  private void mergeOverlapping() {
-    for (int i = 1; i < ranges.size(); ++i) {
-      boolean replaced = checkOverlapAndReplace(i);
-      if (replaced) {
-        // i-th range has been replaced, check the "new i-th" range again
+  private void removeTotallyCovered(IntegerRange range) {
+    for (int i = 0; i < ranges.size(); ++i) {
+      IntegerRange existingRange = ranges.get(i);
+      if (range.containsFully(existingRange)) {
+        ranges.remove(i);
         i--;
       }
     }
   }
 
-  private boolean checkOverlapAndReplace(int rangeIndex) {
-    IntegerRange r = ranges.get(rangeIndex);
-    boolean replaced = false;
-    int j = 0;
-    while (!replaced && j < rangeIndex) {
-      IntegerRange rj = ranges.get(j);
-      if (r.overlapsWith(rj)) {
-        ranges.set(j, r.mergeWith(rj));
-        ranges.remove(rangeIndex);
-        replaced = true;
+  /**
+   * Merge the new range r with existing ranges. Assume that no range will overlap with r fully.
+   * Find ranges s and e first:
+   * s: where the new range starts
+   * e: where the new range ends
+   * Three cases possible:
+   * a) If both s and e are found, replace them with a new range from s.start until e.end
+   * b) If one of s or e exists, merge r with it
+   * c) If neither s nor e are found, simply add the new range r
+   *
+   * @param r The new range to merge with existing ones.
+   */
+  private void mergeWithExisting(IntegerRange r) {
+    IntegerRange s = findStartRangeFor(r);
+    IntegerRange e = findEndRangeFor(r);
+    if (s != null && e != null) {
+      // If s == e, this means that r is fully within s and "gets swallowed by s"
+      if (s != e) {
+        s.setEnd(e.getEnd());
+        ranges.remove(e);
       }
-      ++j;
+    } else if (s != null) {
+      s.setEnd(r.getEnd());
+    } else if (e != null) {
+      e.setStart(r.getStart());
+    } else {
+      ranges.add(r);
     }
+  }
 
-    return replaced;
+  /**
+   * Find an existing range which covers r.start .
+   *
+   * @param r The range to check the start for
+   * @return A range which covers the start of r, or null if none found
+   */
+  private IntegerRange findStartRangeFor(IntegerRange r) {
+    IntegerRange startRange = null;
+    Iterator<IntegerRange> it = ranges.iterator();
+    while (it.hasNext() && startRange == null) {
+      IntegerRange range = it.next();
+      if (r.startsWithin(range)) {
+        startRange = range;
+      }
+    }
+    return startRange;
+  }
+
+  /**
+   * Find an existing range which covers r.end .
+   *
+   * @param r The range to check the end for
+   * @return A range which covers the end of r, or null if none found
+   */
+  private IntegerRange findEndRangeFor(IntegerRange r) {
+    IntegerRange endRange = null;
+    Iterator<IntegerRange> it = ranges.iterator();
+    while (it.hasNext() && endRange == null) {
+      IntegerRange range = it.next();
+      if (r.endsWithin(range)) {
+        endRange = range;
+      }
+    }
+    return endRange;
   }
 
   /**
@@ -98,17 +106,21 @@ public class NonOverlappingRanges {
    * @param v The value to remove
    */
   public void removeSingleValue(int v) {
-    // TODO - refactor to a while-loop
-    for (int i = 0; i < ranges.size(); ++i) {
-      IntegerRange r = ranges.get(i);
-      if (r.getStart() == v) {
-        ranges.set(i, new IntegerRange(v + 1, r.getEnd()));
-      } else if (r.getEnd() == v) {
-        ranges.set(i, new IntegerRange(r.getStart(), v - 1));
-      } else if (r.containsValue(v)) {
-        IntegerRange[] splitRanges = r.cutAt(v);
-        ranges.set(i, splitRanges[0]);
-        ranges.add(splitRanges[1]);
+    boolean found = false;
+    Iterator<IntegerRange> it = ranges.iterator();
+    while (it.hasNext() && !found) {
+      IntegerRange r = it.next();
+      if (r.containsValue(v)) {
+        found = true;
+        if (r.getStart() == v) {
+          r.setStart(v + 1);
+        } else if (r.getEnd() == v) {
+          r.setEnd(v - 1);
+        } else if (r.containsValue(v)) {
+          int end = r.getEnd();
+          r.setEnd(v - 1);
+          ranges.add(new IntegerRange(v + 1, end));
+        }
       }
     }
   }

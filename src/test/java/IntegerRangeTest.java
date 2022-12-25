@@ -73,14 +73,5 @@ class IntegerRangeTest {
     IntegerRange result = first.mergeWith(second);
     assertEquals(new IntegerRange(expectedResultStart, expectedResultEnd), result);
   }
-
-  @Test
-  void testCut() {
-    IntegerRange[] cuts = new IntegerRange(1, 10).cutAt(6);
-    assertEquals(2, cuts.length);
-    assertEquals(new IntegerRange(1, 5), cuts[0]);
-    assertEquals(new IntegerRange(7, 10), cuts[1]);
-  }
-
 }
 
